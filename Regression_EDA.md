@@ -220,6 +220,7 @@ grid.arrange(p3, p4, ncol = 2)
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+   
 Marital Status   
 
 ```r
@@ -229,6 +230,7 @@ grid.arrange(p5, p6, ncol = 2)
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+   
 Birth Year   
 
 ```r
@@ -238,6 +240,7 @@ grid.arrange(p7, p8, nrow = 2)
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+    
 Years elapsed since joined   
 
 ```r
@@ -247,6 +250,7 @@ grid.arrange(p13, p14, nrow = 2)
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+   
 Branch Code   
 
 ```r
@@ -256,6 +260,7 @@ grid.arrange(p9, p10, ncol = 2)
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+   
 Occupation Code Category   
 
 ```r
@@ -289,6 +294,7 @@ bind_rows(females, males) %>% pivot_longer(cols= -sex, names_to = "product" , va
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+    
 Marital Status   
 
 ```r
@@ -316,9 +322,10 @@ marital_products_mat %>% pivot_longer(cols= AHXO:X8NN1, names_to = "product" , v
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
+   
 Birth Year   
 
-
+   
 Years elapsed since joined   
 
 ```r
@@ -358,6 +365,7 @@ year_products_mat %>% pivot_longer(cols= AHXO:X8NN1, names_to = "product" , valu
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+   
 Branch Code   
 
 ```r
@@ -385,6 +393,7 @@ branch_products_mat %>% pivot_longer(cols= "AHXO":"X8NN1", names_to = "product" 
 ```
 
 ![](Regression_EDA_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
+   
 Occupation Category   
 
 ```r
