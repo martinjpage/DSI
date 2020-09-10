@@ -102,30 +102,35 @@ p3 <- train %>% ggplot(aes(sex, fill = sex)) + geom_bar() + ggtitle("Train")
 p4 <- test %>% ggplot(aes(sex, fill = sex)) + geom_bar() + ggtitle("Test")
 grid.arrange(p3, p4, ncol = 2) 
 ```
+   
 Marital Status   
 ```{r}
 p5 <- train %>% ggplot(aes(marital_status, fill = marital_status)) + geom_bar() + ggtitle("Train")
 p6 <- test %>% ggplot(aes(marital_status, fill = marital_status)) + geom_bar() + ggtitle("Test")
 grid.arrange(p5, p6, ncol = 2) 
 ```
+   
 Birth Year   
 ```{r, fig.height= 7, fig.width= 10}
 p7 <- train %>% ggplot(aes(birth_year)) + geom_bar() + ggtitle("Train")
 p8 <- test %>% ggplot(aes(birth_year)) + geom_bar() + ggtitle("Test") + scale_x_continuous(limits = c(min(train$birth_year), max(train$birth_year)))
 grid.arrange(p7, p8, nrow = 2)
 ```
+    
 Years elapsed since joined   
 ```{r, warning=FALSE}
 p13 <- train %>% ggplot(aes(duration)) + geom_bar() + ggtitle("Train")
 p14 <- test %>% ggplot(aes(duration)) + geom_bar() + ggtitle("Test")
 grid.arrange(p13, p14, nrow = 2)
 ```
+   
 Branch Code   
 ```{r, fig.height= 6, fig.width= 8}
 p9 <- train %>% ggplot(aes(branch_code, fill = branch_code)) + geom_bar() + ggtitle("Train") + theme(axis.text.x = element_text(angle = 90))
 p10 <- test %>% ggplot(aes(branch_code, fill = branch_code)) + geom_bar() + ggtitle("Test") + theme(axis.text.x = element_text(angle = 90))
 grid.arrange(p9, p10, ncol = 2)    
 ```
+   
 Occupation Code Category   
 ```{r, fig.height= 5, fig.width= 10}
 p11 <- train %>% ggplot(aes(occupation_category_code, fill = occupation_category_code)) + geom_bar() + ggtitle("Train")
@@ -136,6 +141,9 @@ grid.arrange(p11, p12, ncol = 2)
 Correlation Matrix   
 ```{r}
 train$age <- 2020 - train$birth_year
+train$join_year <- year(train$join_date)
+train$age_at_join <- train$join_year - train$birth_year
+
 corr_matrix <- cor(train[,c(5,9:31)])
 corrplot::corrplot(corr_matrix, order = "FPC", method = "circle", type = "lower", tl.cex = 0.6, tl.col = "black")
 ```
@@ -150,6 +158,7 @@ males <- males %>% mutate(sex = factor("M"))
 
 bind_rows(females, males) %>% pivot_longer(cols= -sex, names_to = "product" , values_to = "proportion") %>% ggplot(aes(x = product, y = proportion, fill = sex)) + geom_col(position = "dodge") + theme(axis.text.x = element_text(angle = 90))
 ```
+    
 Marital Status   
 ```{r, message=FALSE}
 marital_products <- train %>% pivot_longer(cols= P5DA:ECY3, names_to = "product" , values_to = "purchase") %>% group_by(marital_status, product) %>% summarise(total = sum(purchase)) %>% pivot_wider(id_cols = "marital_status" ,names_from = "product", values_from = "total")
@@ -171,9 +180,25 @@ marital_products_mat <- rownames_to_column(marital_products_mat, "marital_status
 
 marital_products_mat %>% pivot_longer(cols= AHXO:X8NN1, names_to = "product" , values_to = "proportion") %>% ggplot(aes(x = product, y = proportion, fill = marital_status)) + geom_col() + theme(axis.text.x = element_text(angle = 90))
 ```
+   
 Birth Year   
+```{r}
+birth_year <- train %>% pivot_longer(cols= P5DA:ECY3, names_to = "product" , values_to = "purchase") %>% group_by(birth_year, product) %>% summarise(total = sum(purchase)) %>%  pivot_wider(id_cols = "birth_year" ,names_from = "product", values_from = "total")
+birth_year <- column_to_rownames(birth_year, var = "birth_year")
+birth_year <- apply(birth_year, MARGIN = 1, function(x) x / sum(x))
+birth_year %>% knitr::kable()
 
+```
 
+```{r, fig.height= 6, fig.width= 9}
+birth_year <- train %>% pivot_longer(cols= P5DA:ECY3, names_to = "product" , values_to = "purchase") %>% group_by(product, birth_year) %>% summarise(total = sum(purchase)) %>%  pivot_wider(id_cols = "product" ,names_from = "birth_year", values_from = "total")
+birth_year <- column_to_rownames(birth_year, var = "product")
+birth_year <- apply(birth_year, MARGIN = 1, function(x) x / sum(x))
+
+data.frame(birth_year) %>% mutate(birth_year = rownames(data.frame(birth_year)))%>% select(-GYSR) %>% pivot_longer(cols= AHXO:X8NN1, names_to = "product" , values_to = "proportion")  %>% ggplot(aes(x = birth_year, y = proportion)) + geom_col() + facet_wrap(~product) +  theme(axis.ticks.x = element_blank(), axis.text.x=element_blank())
+```
+
+   
 Years elapsed since joined   
 ```{r}
 year_products <- train %>% mutate(year_joined = year(join_date)) %>% pivot_longer(cols= P5DA:ECY3, names_to = "product" , values_to = "purchase") %>% group_by(year_joined, product) %>% summarise(total = sum(purchase)) %>% pivot_wider(id_cols = "year_joined" ,names_from = "product", values_from = "total")
@@ -195,6 +220,7 @@ year_products_mat <- rownames_to_column(year_products_mat, "year_joined")
     
 year_products_mat %>% pivot_longer(cols= AHXO:X8NN1, names_to = "product" , values_to = "proportion") %>% ggplot(aes(x = product, y = proportion, fill = year_joined)) + geom_col()  + theme(axis.text.x = element_text(angle = 90))
 ```
+   
 Branch Code   
 ```{r, message=FALSE}
 branch_products <- train %>% pivot_longer(cols= P5DA:ECY3, names_to = "product" , values_to = "purchase") %>% group_by(branch_code, product) %>% summarise(total = sum(purchase)) %>% pivot_wider(id_cols = "branch_code" ,names_from = "product", values_from = "total")
@@ -216,6 +242,7 @@ branch_products_mat <- rownames_to_column(branch_products_mat, "branch_code")
     
 branch_products_mat %>% pivot_longer(cols= "AHXO":"X8NN1", names_to = "product" , values_to = "proportion") %>% ggplot(aes(x = product, y = proportion, fill = branch_code)) + geom_col() + theme(axis.text.x = element_text(angle = 90))
 ```
+   
 Occupation Category   
 ```{r, message=FALSE}
 occupation_products <- train %>% pivot_longer(cols= P5DA:ECY3, names_to = "product" , values_to = "purchase") %>% group_by(occupation_category_code, product) %>% summarise(total = sum(purchase)) %>% pivot_wider(id_cols = "occupation_category_code" ,names_from = "product", values_from = "total")
@@ -237,3 +264,5 @@ occupation_products_mat <- rownames_to_column(occupation_products_mat, "occupati
     
 occupation_products_mat %>% pivot_longer(cols= "AHXO":"X8NN1", names_to = "product" , values_to = "proportion") %>% ggplot(aes(x = product, y = proportion, fill = occupation_category_code)) + geom_col() + theme(axis.text.x = element_text(angle = 90))
 ```
+
+
